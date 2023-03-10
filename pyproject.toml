@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "holding-quiz"
+version = "0.1.0"
+description = ""
+authors = ["Vladuslav Dragushin <maxhc@inbox.ru>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "holding_quiz"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

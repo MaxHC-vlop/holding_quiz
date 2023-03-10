@@ -1,30 +1,91 @@
 import logging
 
 from environs import Env
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, ReplyKeyboardMarkup
+from telegram.ext import CommandHandler, MessageHandler
+from telegram.ext import CallbackContext, ConversationHandler
+from telegram.ext import Filters, Updater
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
 
 
-def start(update: Update, context: CallbackContext) -> None:
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr'Hi {user.mention_markdown_v2()}\!',
-        reply_markup=ForceReply(selective=True),
+MENU = 0
+
+
+def start(update: Update, context: CallbackContext) -> MENU:
+    reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
+    user = update.effective_user.first_name
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=True, resize_keyboard=True
+    )
+    message = fr'Здравствуйте, {user}'
+
+    update.message.reply_text(
+        message,
+        reply_markup=reply_markup
     )
 
-
-def help_command(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('Help!')
+    return MENU
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text(update.message.text)
+def get_new_question(update: Update, context: CallbackContext) -> MENU:
+    reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=True, resize_keyboard=True
+    )
+    message = 'Новый вопрос'
+
+    update.message.reply_text(
+        message,
+        reply_markup=reply_markup
+    )
+
+    return MENU
+
+
+def get_fail(update: Update, context: CallbackContext) -> MENU:
+    reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=True, resize_keyboard=True
+    )
+    message = 'Ты сдался'
+
+    update.message.reply_text(
+        message,
+        reply_markup=reply_markup
+    )
+
+    return MENU
+
+
+def view_invoice(update: Update, context: CallbackContext) -> MENU:
+    reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=True, resize_keyboard=True
+    )
+    message = 'Твой счет'
+
+    update.message.reply_text(
+        message,
+        reply_markup=reply_markup
+    )
+
+    return MENU
+
+
+def cancel(update: Update, context: CallbackContext) -> ConversationHandler.END:
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text(
+        'Счастливо! Будем рады помочь вам.'
+    )
+
+    return ConversationHandler.END
 
 
 def main() -> None:
@@ -33,9 +94,18 @@ def main() -> None:
     token = env.str("token")
     updater = Updater(token)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", help_command))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    conv_handler = ConversationHandler(
+        entry_points=[CommandHandler('start', start)],
+        states={
+            MENU: [
+                MessageHandler(Filters.regex(r'Новый вопрос'), get_new_question),
+                MessageHandler(Filters.regex(r'Сдаться'), get_fail),
+                MessageHandler(Filters.regex(r'Мой счет'), view_invoice)
+            ]
+        },
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+    dispatcher.add_handler(conv_handler)
     updater.start_polling()
     updater.idle()
 
