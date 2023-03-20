@@ -4,7 +4,6 @@ import logging
 from textwrap import dedent
 
 from fetch_questions import fetch_questions
-from keyboard import get_keyboard
 
 import redis
 
@@ -13,6 +12,7 @@ from telegram import Update, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, MessageHandler
 from telegram.ext import CallbackContext, ConversationHandler
 from telegram.ext import Filters, Updater
+from telegram import ReplyKeyboardMarkup
 
 
 logging.basicConfig(
@@ -32,7 +32,7 @@ def start(update: Update, context: CallbackContext) -> MENU:
     message = fr'Здравствуйте, {user}'
     database.set(user, '0', 86400)
 
-    reply_markup = get_keyboard()
+    reply_markup = make_keyboard()
 
     update.message.reply_text(
         message,
@@ -40,6 +40,15 @@ def start(update: Update, context: CallbackContext) -> MENU:
     )
 
     return MENU
+
+
+def make_keyboard():
+    reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=True, resize_keyboard=True
+    )
+
+    return reply_markup
 
 
 def new_question_handler(update: Update, context: CallbackContext) -> MENU:
@@ -55,7 +64,7 @@ def new_question_handler(update: Update, context: CallbackContext) -> MENU:
         nubmer_question
     )
 
-    reply_markup = get_keyboard()
+    reply_markup = make_keyboard()
 
     update.message.reply_text(
         question,
@@ -72,7 +81,7 @@ def fail_handler(update: Update, context: CallbackContext) -> MENU:
     nubmer_question = int(database.get(update.message.chat_id))
     answer = questions[nubmer_question]['answer']
 
-    reply_markup = get_keyboard()
+    reply_markup = make_keyboard()
 
     update.message.reply_text(
         answer,
@@ -86,7 +95,7 @@ def points_handler(update: Update, context: CallbackContext) -> MENU:
     user = update.effective_user.first_name
     points = database.get(user)
 
-    reply_markup = get_keyboard()
+    reply_markup = make_keyboard()
     message = fr'Твой счет {points}'
 
     update.message.reply_text(
@@ -115,7 +124,7 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
         '''
         bot_answer = dedent(bot_answer)
 
-    reply_markup = get_keyboard()
+    reply_markup = make_keyboard()
 
     update.message.reply_text(
         bot_answer,
