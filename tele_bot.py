@@ -4,8 +4,10 @@ import logging
 from textwrap import dedent
 
 from fetch_questions import fetch_questions
+from tg_log_handler import TelegramLogsHandler
 
 import redis
+import telegram
 
 from environs import Env
 from telegram import Update, ReplyKeyboardRemove
@@ -15,12 +17,7 @@ from telegram.ext import Filters, Updater
 from telegram import ReplyKeyboardMarkup
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__file__)
 
 MENU = 0
 
@@ -29,6 +26,8 @@ def start(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
 
     user = update.effective_user.first_name
+    logger.info(f'{user} starts quiz')
+
     message = fr'Здравствуйте, {user}'
     database.set(user, '0', 86400)
 
@@ -52,6 +51,9 @@ def make_keyboard():
 
 
 def new_question_handler(update: Update, context: CallbackContext) -> MENU:
+    user = update.effective_user.first_name
+    logger.info(f'{user} requests new question')
+
     questions = context.bot_data['questions']
     database = context.bot_data['redis_session']
 
@@ -75,6 +77,8 @@ def new_question_handler(update: Update, context: CallbackContext) -> MENU:
 
 
 def fail_handler(update: Update, context: CallbackContext) -> MENU:
+    user = update.effective_user.first_name
+    logger.info(f'{user} gave up')
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
 
@@ -93,6 +97,7 @@ def fail_handler(update: Update, context: CallbackContext) -> MENU:
 def points_handler(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
     user = update.effective_user.first_name
+    logger.info(f'{user} requests points')
     points = database.get(user)
 
     reply_markup = make_keyboard()
@@ -110,6 +115,7 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
     user = update.effective_user.first_name
+    logger.info(f'{user} requests points')
 
     nubmer_question = int(database.get(update.message.chat_id))
     asnwer = questions[nubmer_question]['answer']
@@ -136,7 +142,7 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
 
 def cancel(update: Update, context: CallbackContext) -> ConversationHandler:
     user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
+    logger.info(f"{user} canceled the conversation.")
     update.message.reply_text(
         'Счастливо! До новых встреч!',
         reply_markup=ReplyKeyboardRemove()
@@ -149,10 +155,14 @@ def main() -> None:
     env = Env()
     env.read_env()
 
-    token = env.str("token")
+    token = env.str('token')
+    tg_token_admin = env.str('TG_TOKEN_ADMIN')
+    tg_chat_id = env.str('TG_CHAT_ID')
     database_password = env.str('REDIS_DATABASE_PASSWORD')
     database_host = env.str('REDIS_DATABASE_HOST')
     database_port = env.int('REDIS_DATABASE_PORT')
+
+    tg_adm_bot = telegram.Bot(token=tg_token_admin)
 
     database = redis.Redis(
         host=database_host,
@@ -167,6 +177,13 @@ def main() -> None:
 
     dispatcher.bot_data['redis_session'] = database
     dispatcher.bot_data['questions'] = fetch_questions()
+
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        level=logging.INFO
+    )
+    logger.addHandler(TelegramLogsHandler(tg_adm_bot, tg_chat_id))
+    logger.info('TG bot running...')
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
