@@ -24,9 +24,7 @@ MENU = 0
 
 def start(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
-
     user = update.effective_user.first_name
-    logger.info(f'{user} starts quiz')
 
     message = fr'Здравствуйте, {user}'
     database.set(user, '0', 86400)
@@ -52,7 +50,6 @@ def make_keyboard():
 
 def new_question_handler(update: Update, context: CallbackContext) -> MENU:
     user = update.effective_user.first_name
-    logger.info(f'{user} requests new question')
 
     questions = context.bot_data['questions']
     database = context.bot_data['redis_session']
@@ -78,7 +75,6 @@ def new_question_handler(update: Update, context: CallbackContext) -> MENU:
 
 def fail_handler(update: Update, context: CallbackContext) -> MENU:
     user = update.effective_user.first_name
-    logger.info(f'{user} gave up')
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
 
@@ -97,7 +93,6 @@ def fail_handler(update: Update, context: CallbackContext) -> MENU:
 def points_handler(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
     user = update.effective_user.first_name
-    logger.info(f'{user} requests points')
     points = database.get(user)
 
     reply_markup = make_keyboard()
@@ -115,7 +110,6 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
     user = update.effective_user.first_name
-    logger.info(f'{user} requests points')
 
     nubmer_question = int(database.get(update.message.chat_id))
     asnwer = questions[nubmer_question]['answer']
@@ -142,7 +136,6 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
 
 def cancel(update: Update, context: CallbackContext) -> ConversationHandler:
     user = update.message.from_user
-    logger.info(f"{user} canceled the conversation.")
     update.message.reply_text(
         'Счастливо! До новых встреч!',
         reply_markup=ReplyKeyboardRemove()

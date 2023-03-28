@@ -22,6 +22,7 @@ def make_keyboard():
     keyboard.add_button('Сдаться', color=VkKeyboardColor.PRIMARY)
     keyboard.add_line()
     keyboard.add_button('Мой счёт', color=VkKeyboardColor.PRIMARY)
+
     return keyboard
 
 
@@ -58,7 +59,6 @@ def handle_solution_attempt(event, vk_bot, database, questions):
 
 def handle_new_question_request(event, vk_bot, database, questions):
     user_id = event.user_id
-    logger.info(f'{user_id} requests new question')
     count_questions = len(questions)
     nubmer_question = random.randint(1, count_questions)
     question = questions[int(nubmer_question)]['question']
@@ -75,7 +75,6 @@ def handle_new_question_request(event, vk_bot, database, questions):
 
 def handle_surrender(event, vk_bot, database, questions):
     user_id = event.user_id
-    logger.info(f'{user_id} gave up')
     nubmer_question = database.get(user_id)
     question = questions[int(nubmer_question)]['question']
     answer = questions[int(nubmer_question)]['answer']
@@ -101,7 +100,6 @@ def handle_score(event, vk_bot, database):
     user_id = event.user_id
     points = f'{user_id}_points'
     counter = database.get(points)
-    logger.info(f'{user_id} requests points')
     keyboard = make_keyboard()
     vk_bot.messages.send(
         user_id=user_id,
