@@ -3,12 +3,15 @@ import redis
 import vk_api
 import random
 
+from tg_log_handler import TelegramLogsHandler
+from fetch_questions import fetch_questions
+
+import telegram
+
 from environs import Env
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
-
-from fetch_questions import fetch_questions
 
 env = Env()
 env.read_env()
@@ -114,6 +117,10 @@ def main():
     database_password = env.str('REDIS_DATABASE_PASSWORD')
     database_host = env.str('REDIS_DATABASE_HOST')
     database_port = env.int('REDIS_DATABASE_PORT')
+    tg_token_admin = env.str('TG_TOKEN_ADMIN')
+    tg_chat_id = env.str('TG_CHAT_ID')
+
+    tg_adm_bot = telegram.Bot(token=tg_token_admin)
 
     database = redis.Redis(
         host=database_host,
@@ -133,10 +140,13 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         level=logging.INFO
     )
+    logger.addHandler(TelegramLogsHandler(tg_adm_bot, tg_chat_id))
     logger.info('VK bot running...')
+
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
             if 'Новый вопрос' in event.text:
+                logger.info('new_question')
                 handle_new_question_request(
                     event, vk, database, questions
                 )

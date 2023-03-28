@@ -148,7 +148,7 @@ def main() -> None:
     env = Env()
     env.read_env()
 
-    token = env.str('token')
+    token = env.str('TG_TOKEN_BOT')
     tg_token_admin = env.str('TG_TOKEN_ADMIN')
     tg_chat_id = env.str('TG_CHAT_ID')
     database_password = env.str('REDIS_DATABASE_PASSWORD')
