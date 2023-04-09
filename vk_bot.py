@@ -114,11 +114,11 @@ def handle_score(event, vk_bot, database):
 
 def main():
     vk_token = env.str('VK_TOKEN')
+    tg_token_admin = env.str('TG_ADMIN_TOKEN')
+    tg_chat_id = env.str('TG_ADMIN_CHAT_ID')
     database_password = env.str('REDIS_DATABASE_PASSWORD')
     database_host = env.str('REDIS_DATABASE_HOST')
     database_port = env.int('REDIS_DATABASE_PORT')
-    tg_token_admin = env.str('TG_TOKEN_ADMIN')
-    tg_chat_id = env.str('TG_CHAT_ID')
 
     tg_adm_bot = telegram.Bot(token=tg_token_admin)
 

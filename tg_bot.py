@@ -149,8 +149,8 @@ def main() -> None:
     env.read_env()
 
     token = env.str('TG_TOKEN_BOT')
-    tg_token_admin = env.str('TG_TOKEN_ADMIN')
-    tg_chat_id = env.str('TG_CHAT_ID')
+    tg_token_admin = env.str('TG_TOKEN_LOGGER_BOT')
+    tg_chat_id = env.str('TG_CHAT_ADMIN')
     database_password = env.str('REDIS_DATABASE_PASSWORD')
     database_host = env.str('REDIS_DATABASE_HOST')
     database_port = env.int('REDIS_DATABASE_PORT')
