@@ -12,6 +12,7 @@ def open_quiz_file(filename: str) -> str:
 
 
 def parse_file_contents(element: str) -> dict:
+    print(element)
     question_key = r'\bВопрос'
     answer_key = r'\bОтвет'
 
@@ -38,16 +39,16 @@ def fetch_questions() -> dict:
         file_contents = open_quiz_file(filepath)
 
         file_contents = file_contents.split('\n\n')
+        file_contents.remove('\n')
+
         for content in file_contents:
-            content = content.strip()
+            content = content.replace('\n', ' ')
             element_content = parse_file_contents(content)
-            if 'question' in element_content:
-                questions[number_questions] = element_content
-            elif 'answer' in element_content:
-                questions[number_questions].update(element_content)
-                number_questions += 1
+            if element_content:
+                if 'question' in element_content:
+                    questions[number_questions] = element_content
+                elif 'answer' in element_content:
+                    questions[number_questions].update(element_content)
+                    number_questions += 1
 
     return questions
-
-
-fetch_questions()
