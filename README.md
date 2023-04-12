@@ -19,7 +19,7 @@ pip install poetry
 poetry install
 ```
 
-- Set environment variables taken from [BotFather](https://t.me/BotFather), [redis](https://redislabs.com/):
+- Set environment variables taken from [BotFather](https://t.me/BotFather), [Redis](https://redislabs.com/):
     - `TG_TOKEN`
     - `VK_TOKEN`
     - `TG_LOGGER_TOKEN`
@@ -28,7 +28,12 @@ poetry install
     - `REDIS_DATABASE_PORT`
     - `REDIS_DATABASE_PASSWORD`
 
-## Run
+## Run vk bot
 ```bash
 poetry run python3 vk_bot.py
+```
+
+## Run telegram bot
+```bash
+poetry run python3 tg_bot.py
 ```

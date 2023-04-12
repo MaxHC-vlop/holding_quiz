@@ -13,8 +13,6 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
-env = Env()
-env.read_env()
 
 logger = logging.getLogger(__file__)
 
@@ -113,6 +111,9 @@ def handle_score(event, vk_bot, database):
 
 
 def main():
+    env = Env()
+    env.read_env()
+
     vk_token = env.str('VK_TOKEN')
     tg_token_admin = env.str('TG_ADMIN_TOKEN')
     tg_chat_id = env.str('TG_ADMIN_CHAT_ID')
