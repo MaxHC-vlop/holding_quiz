@@ -12,7 +12,6 @@ def open_quiz_file(filename: str) -> str:
 
 
 def parse_file_contents(element: str) -> dict:
-    print(element)
     question_key = r'\bВопрос'
     answer_key = r'\bОтвет'
 

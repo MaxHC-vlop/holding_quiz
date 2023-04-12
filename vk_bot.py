@@ -46,7 +46,7 @@ def handle_solution_attempt(event, vk_bot, database, questions):
     reply_text = event.text
     if reply_text in answer:
         database.incr(points)
-        reply_text = 'Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»'
+        reply_text = 'Правильно! Для следующего вопроса нажми «Новый вопрос»'
     else:
         reply_text = 'Неправильно… Попробуешь ещё раз?'
 
@@ -62,7 +62,7 @@ def handle_new_question_request(event, vk_bot, database, questions):
     user_id = event.user_id
     count_questions = len(questions)
     nubmer_question = random.randint(1, count_questions)
-    question = questions[int(nubmer_question)]['question']
+    question = questions[nubmer_question]['question']
 
     database.set(user_id, nubmer_question)
     keyboard = make_keyboard()
@@ -115,8 +115,8 @@ def main():
     env.read_env()
 
     vk_token = env.str('VK_TOKEN')
-    tg_token_admin = env.str('TG_ADMIN_TOKEN')
-    tg_chat_id = env.str('TG_ADMIN_CHAT_ID')
+    tg_token_admin = env.str('TG_CHAT_ADMIN')
+    tg_chat_id = env.str('TG_TOKEN_LOGGER_BOT')
     database_password = env.str('REDIS_DATABASE_PASSWORD')
     database_host = env.str('REDIS_DATABASE_HOST')
     database_port = env.int('REDIS_DATABASE_PORT')
