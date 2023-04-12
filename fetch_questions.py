@@ -5,8 +5,8 @@ from environs import Env
 
 
 def open_quiz_file(filename: str) -> str:
-    with open(filename, "r", encoding='KOI8-R') as my_file:
-        file_content = my_file.read()
+    with open(filename, "r", encoding='KOI8-R') as file:
+        file_content = file.read()
 
     return file_content
 
