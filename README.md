@@ -20,14 +20,14 @@ poetry install
 ```
 
 - Set environment variables taken from [BotFather](https://t.me/BotFather), [Redis](https://redislabs.com/):
-    - `TG_TOKEN`
-    - `VK_TOKEN`
-    - `TG_LOGGER_TOKEN`
-    - `TG_ADMIN_CHAT_ID`
-    - `REDIS_DATABASE_HOST`
-    - `REDIS_DATABASE_PORT`
-    - `REDIS_DATABASE_PASSWORD`
-    - `FOLDER`
+    - `TG_TOKEN` - telegram bot token
+    - `VK_TOKEN` - vk bot token
+    - `TG_LOGGER_TOKEN` - telegram logger token
+    - `TG_ADMIN_CHAT_ID` - id admin chat id
+    - `REDIS_DATABASE_HOST` - redis host
+    - `REDIS_DATABASE_PORT` - redis port
+    - `REDIS_DATABASE_PASSWORD` - super secret password
+    - `FOLDER` - directory with files for conducting polls(default `quiz-questions`)
 
 ## Run vk bot
 ```bash
