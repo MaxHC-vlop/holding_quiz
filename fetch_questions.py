@@ -1,6 +1,8 @@
 import os
 import re
 
+from environs import Env
+
 
 def open_quiz_file(filename: str) -> str:
     with open(filename, "r", encoding='KOI8-R') as my_file:
@@ -24,7 +26,10 @@ def parse_file_contents(element: str) -> dict:
 
 
 def fetch_questions() -> dict:
-    folder = 'quiz-questions'
+    env = Env()
+    env.read_env()
+
+    folder = env.str('FOLDER', 'quiz-questions')
     files = os.listdir(folder)
     number_questions = 1
     questions = {}
@@ -43,3 +48,6 @@ def fetch_questions() -> dict:
                 number_questions += 1
 
     return questions
+
+
+fetch_questions()

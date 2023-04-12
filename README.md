@@ -27,6 +27,7 @@ poetry install
     - `REDIS_DATABASE_HOST`
     - `REDIS_DATABASE_PORT`
     - `REDIS_DATABASE_PASSWORD`
+    - `FOLDER`
 
 ## Run vk bot
 ```bash
