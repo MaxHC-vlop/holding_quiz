@@ -19,10 +19,8 @@ from telegram import ReplyKeyboardMarkup
 
 logger = logging.getLogger(__file__)
 
-MENU = 0
 
-
-def start(update: Update, context: CallbackContext) -> MENU:
+def start(update: Update, context: CallbackContext):
     database = context.bot_data['redis_session']
     user = update.effective_user.first_name
 
@@ -36,8 +34,6 @@ def start(update: Update, context: CallbackContext) -> MENU:
         reply_markup=reply_markup
     )
 
-    return MENU
-
 
 def make_keyboard():
     reply_keyboard = [['Новый вопрос', 'Сдаться'], ['Мой счет']]
@@ -48,9 +44,7 @@ def make_keyboard():
     return reply_markup
 
 
-def new_question_handler(update: Update, context: CallbackContext) -> MENU:
-    user = update.effective_user.first_name
-
+def new_question_handler(update: Update, context: CallbackContext):
     questions = context.bot_data['questions']
     database = context.bot_data['redis_session']
 
@@ -70,11 +64,8 @@ def new_question_handler(update: Update, context: CallbackContext) -> MENU:
         reply_markup=reply_markup
     )
 
-    return MENU
 
-
-def fail_handler(update: Update, context: CallbackContext) -> MENU:
-    user = update.effective_user.first_name
+def fail_handler(update: Update, context: CallbackContext):
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
 
@@ -90,7 +81,7 @@ def fail_handler(update: Update, context: CallbackContext) -> MENU:
     new_question_handler(update, context)
 
 
-def points_handler(update: Update, context: CallbackContext) -> MENU:
+def points_handler(update: Update, context: CallbackContext):
     database = context.bot_data['redis_session']
     user = update.effective_user.first_name
     points = database.get(user)
@@ -103,10 +94,8 @@ def points_handler(update: Update, context: CallbackContext) -> MENU:
         reply_markup=reply_markup
     )
 
-    return MENU
 
-
-def is_right_handler(update: Update, context: CallbackContext) -> MENU:
+def is_right_handler(update: Update, context: CallbackContext):
     database = context.bot_data['redis_session']
     questions = context.bot_data['questions']
     user = update.effective_user.first_name
@@ -131,11 +120,8 @@ def is_right_handler(update: Update, context: CallbackContext) -> MENU:
         reply_markup=reply_markup
     )
 
-    return MENU
 
-
-def cancel(update: Update, context: CallbackContext) -> ConversationHandler:
-    user = update.message.from_user
+def cancel(update: Update, context: CallbackContext):
     update.message.reply_text(
         'Счастливо! До новых встреч!',
         reply_markup=ReplyKeyboardRemove()
@@ -178,32 +164,20 @@ def main() -> None:
     logger.addHandler(TelegramLogsHandler(tg_adm_bot, tg_chat_id))
     logger.info('TG bot running...')
 
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-        states={
-            MENU: [
-                MessageHandler(
-                    Filters.regex(r'Новый вопрос'),
-                    new_question_handler
-                ),
-                MessageHandler(
-                    Filters.regex(r'Сдаться'),
-                    fail_handler
-                ),
-                MessageHandler(
-                    Filters.regex(r'Мой счет'),
-                    points_handler
-                ),
-                MessageHandler(
-                    Filters.text & ~Filters.command,
-                    is_right_handler
-                )
-            ]
-        },
-        fallbacks=[CommandHandler('cancel', cancel)]
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('cancel', cancel))
+    dispatcher.add_handler(
+        MessageHandler(Filters.regex(r'Новый вопрос'), new_question_handler)
     )
-
-    dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(
+        MessageHandler(Filters.regex(r'Сдаться'), fail_handler)
+    )
+    dispatcher.add_handler(
+        MessageHandler(Filters.regex(r'Мой счет'), points_handler)
+    )
+    dispatcher.add_handler(
+        MessageHandler(Filters.text & ~Filters.command, is_right_handler)
+    )
     updater.start_polling()
     updater.idle()
 
